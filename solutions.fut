@@ -21,4 +21,16 @@ entry process [n] (xs: [n]i32) (ys: [n]i32) : i32 =
 -- entry: process
 -- input { [23,45,-23,44,23,54,23,12,34,54,7,2,4,67] 
 --         [-2,3,4,57,34,2,5,56,56,3,3,5,77,89] }
--- output { 52 }
+-- output { 73 }
+
+
+-- Benchmarking process function 
+-- ==
+-- entry: process
+-- compiled input @ i32_100.in
+-- compiled input @ i32_1000.in
+-- compiled input @ i32_10000.in
+-- compiled input @ i32_100000.in
+-- compiled input @ i32_1000000.in
+-- compiled input @ i32_5000000.in
+-- compiled input @ i32_10000000.in
