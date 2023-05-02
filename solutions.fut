@@ -49,3 +49,24 @@ def process_idx [n] (xs: [n]i32)  (ys: [n]i32) : (i32, i64) =
             if n == 0 then (0,-1) else diffs
         in
             result
+
+
+entry segscan [n] 't (op: t -> t -> t) (ne: t)
+                   (arr: [n](t, bool)): *[n]t = 
+  let combine_segments (x: (t, bool)) (y: (t, bool)): (t, bool) =
+    let (v1, f1) = x
+    let (v2, f2) = y
+    in (if f2 then v2 else op v1 v2, f1 || f2)
+
+  let combined_scan = scan combine_segments (ne, false) arr    
+  let result = map (\(v, _) -> v) combined_scan
+  in result
+
+-- Test block for segscan functions.
+-- ==
+-- entry: segscan
+-- input { (+) 
+           0 
+           [(1,true),(2,false),(3,true),(4,false),(5,true),(6,false)] }
+-- output { [1,3,3,7,5,11] }
+
