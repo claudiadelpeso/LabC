@@ -1,3 +1,5 @@
 *.process.*
 *.c
 solutions
+solutions.fut.*
+*.in
