@@ -51,7 +51,7 @@ def process_idx [n] (xs: [n]i32)  (ys: [n]i32) : (i32, i64) =
             result
 
 
-entry segscan [n] 't (op: t -> t -> t) (ne: t)
+def segscan [n] 't (op: t -> t -> t) (ne: t)
                    (arr: [n](t, bool)): *[n]t = 
   let combine_segments (x: (t, bool)) (y: (t, bool)): (t, bool) =
     let (v1, f1) = x
@@ -62,11 +62,13 @@ entry segscan [n] 't (op: t -> t -> t) (ne: t)
   let result = map (\(v, _) -> v) combined_scan
   in result
 
--- Test block for segscan functions.
+entry segscan_addition_zip [n] (vals: [n]i32) (flags: [n]bool): *[n]i32 =
+  let arr = zip vals flags
+  in segscan (+) 0 arr
+
+-- Test block for segscan function.
 -- ==
--- entry: segscan
--- input { (+) 
-           0 
-           [(1,true),(2,false),(3,true),(4,false),(5,true),(6,false)] }
--- output { [1,3,3,7,5,11] }
+-- entry: segscan_addition_zip
+-- input { [1, 2, 3, 4, 5, 6] [true, false, true, false, true, false] }
+-- output { [1, 3, 3, 7, 5, 11] }
 
