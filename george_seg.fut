@@ -74,7 +74,7 @@ entry regscan [n] (vals: [n]i32) : *[]i32 = scan (+) 0 vals
 def get_bit (bit_position: i32) (key: i64) : i32 =
   ((i32.i64 key) >> bit_position) & 1
 
-def hist 'a [n] (op: a -> a -> a) (ne: a) (k: i64)
+def hist2 'a [n] (op: a -> a -> a) (ne: a) (k: i64)
                (is: [n]i64) (as: [n]a): [k]a =
   let zipped = zip is as 
   let sorted = radix_sort_by_key (\(x,_) -> x) 64 get_bit zipped
@@ -86,7 +86,7 @@ def hist 'a [n] (op: a -> a -> a) (ne: a) (k: i64)
   in take k reduced
   
 entry histentry [n] (vals: [n]i32) (keys: [n]i64): []i32 =
-  let res = hist (+) 0 3 keys vals
+  let res = hist2 (+) 0 3 keys vals
   in res
 
 -- benchmarking hist
@@ -99,4 +99,11 @@ entry histentry [n] (vals: [n]i32) (keys: [n]i64): []i32 =
 -- entry: histentry
 -- compiled input { [1, 2, 3, 4, 5, 6] [0i64, 1i64, 2i64, 0i64, 1i64, 2i64]}
 -- output { [5, 7, 9] }
+
+entry reghistentry [n] (vals: [n]i32) (keys: [n]i64): []i32 = hist (+) 0 3 keys vals
+
+-- test reg hist
+-- ==
+-- entry: reghistentry
+-- compiled input @ hist_1000000.in
 
