@@ -3,3 +3,9 @@
 solutions
 solutions.fut.*
 *.in
+*.actual
+*.expected
+*.pkg
+george_seg
+lib/
+scan
