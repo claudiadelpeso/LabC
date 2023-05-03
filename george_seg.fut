@@ -50,15 +50,11 @@ entry segreduce_addition [n] (vals: [n]i32) (flags: [n]bool): *[]i32 =
 -- ==
 -- entry: segscan_addition_zip 
 -- compiled input @ seg_1000000.in
--- compiled input @ seg_5000000.in
--- compiled input @ seg_10000000.in
 
 -- Benchmarking reduce function 
 -- ==
 -- entry: segreduce_addition 
 -- compiled input @ seg_1000000.in
--- compiled input @ seg_5000000.in
--- compiled input @ seg_10000000.in
 
 
 entry regreduce [n] (vals: [n]i32) : i32 = reduce (+) 0 vals
@@ -69,15 +65,11 @@ entry regscan [n] (vals: [n]i32) : *[]i32 = scan (+) 0 vals
 -- ==
 -- entry: regreduce
 -- compiled input @ reg_1000000.in
--- compiled input @ reg_5000000.in
--- compiled input @ reg_10000000.in
 
 -- Benchmarking regscan function 
 -- ==
 -- entry: regscan
 -- compiled input @ reg_1000000.in
--- compiled input @ reg_5000000.in
--- compiled input @ reg_10000000.in
 
 def get_bit (bit_position: i32) (key: i64) : i32 =
   ((i32.i64 key) >> bit_position) & 1
@@ -86,8 +78,20 @@ def hist 'a [n] (op: a -> a -> a) (ne: a) (k: i64)
                (is: [n]i64) (as: [n]a): [k]a =
   let zipped = zip is as 
   let sorted = radix_sort_by_key (\(x,_) -> x) 64 get_bit zipped
-  in replicate k ne
+  let sorted_a = map (\(_, v) -> v) sorted
+  let shifted = rotate 1 sorted
+  let flags = map2 (\(i,_) (i',_) -> i == i') sorted shifted
+  let reduce_in = zip sorted_a flags
+  let reduced = segreduce op ne reduce_in
+  in take k reduced
   
+entry histentry [n] (vals: [n]i32) (keys: [n]i64): []i32 =
+  let res = hist (+) 0 3 keys vals
+  in res
 
-
+-- Test block for segreduce function.
+-- ==
+-- entry: histentry
+-- input { [0, 1, 2, 3, 4, 5] [0i64, 1i64, 2i64, 0i64, 1i64, 2i64] }
+-- output { [3, 5, 7] }
 
