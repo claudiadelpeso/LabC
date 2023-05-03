@@ -1,3 +1,5 @@
+import "lib/github.com/diku-dk/sorts/radix_sort"
+
 let combine 't (op: t -> t -> t) (x: (t, bool)) (y: (t, bool)): (t, bool) =
   let (v1, f1) = x
   let (v2, f2) = y
@@ -76,6 +78,16 @@ entry regscan [n] (vals: [n]i32) : *[]i32 = scan (+) 0 vals
 -- compiled input @ reg_1000000.in
 -- compiled input @ reg_5000000.in
 -- compiled input @ reg_10000000.in
+
+def get_bit (bit_position: i32) (key: i64) : i32 =
+  ((i32.i64 key) >> bit_position) & 1
+
+def hist 'a [n] (op: a -> a -> a) (ne: a) (k: i64)
+               (is: [n]i64) (as: [n]a): [k]a =
+  let zipped = zip is as 
+  let sorted = radix_sort_by_key (\(x,_) -> x) 64 get_bit zipped
+  in replicate k ne
+  
 
 
 
