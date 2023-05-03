@@ -89,9 +89,14 @@ entry histentry [n] (vals: [n]i32) (keys: [n]i64): []i32 =
   let res = hist (+) 0 3 keys vals
   in res
 
--- Test block for segreduce function.
+-- benchmarking hist
 -- ==
 -- entry: histentry
--- input { [0, 1, 2, 3, 4, 5] [0i64, 1i64, 2i64, 0i64, 1i64, 2i64] }
--- output { [3, 5, 7] }
+-- compiled input @ hist_1000000.in
+
+-- test hist
+-- ==
+-- entry: histentry
+-- compiled input { [1, 2, 3, 4, 5, 6] [0i64, 1i64, 2i64, 0i64, 1i64, 2i64]}
+-- output { [5, 7, 9] }
 
