@@ -1,7 +1,4 @@
--- val processes [n] : (xs : [n]i32) -> (ys: [n]i32) -> i32 
--- map2 applies a binary function to corresponding elements of two input arrays to produce a new array (in parallel)
--- reduce applies a binary function (in parallel) to pairs of adjacent elements in an array to produce a single value. It has accumulator
-
+-- Exercise 1.1
 def max(x: i32, y:i32) : i32 = 
     if x>=y then x else y 
 
@@ -15,6 +12,8 @@ entry process [n] (xs: [n]i32) (ys: [n]i32) : i32 =
         if n == 0 then 0 else max_diff
     in
         result
+
+-- Exercise 1.2
 
 -- Test block for process function.
 -- ==
@@ -35,6 +34,7 @@ entry process [n] (xs: [n]i32) (ys: [n]i32) : i32 =
 -- compiled input @ i32_5000000.in
 -- compiled input @ i32_10000000.in
 
+-- Exercise 1.3
 
 let max_idx (d1: i32, i1: i64) (d2: i32, i2: i64): (i32,i64) =
     if d1 >= d2 then (d1,i1) else (d2,i2)
@@ -50,7 +50,7 @@ def process_idx [n] (xs: [n]i32)  (ys: [n]i32) : (i32, i64) =
         in
             result
 
-
+-- Exercise 2.2
 def segscan [n] 't (op: t -> t -> t) (ne: t)
                    (arr: [n](t, bool)): *[n]t = 
   let combine_segments (x: (t, bool)) (y: (t, bool)): (t, bool) =
@@ -62,13 +62,42 @@ def segscan [n] 't (op: t -> t -> t) (ne: t)
   let result = map (\(v, _) -> v) combined_scan
   in result
 
-entry segscan_addition_zip [n] (vals: [n]i32) (flags: [n]bool): *[n]i32 =
+entry segscan_test [n] (vals: [n]i32) (flags: [n]bool): *[n]i32 =
   let arr = zip vals flags
   in segscan (+) 0 arr
 
 -- Test block for segscan function.
 -- ==
--- entry: segscan_addition_zip
+-- entry: segscan_test
 -- input { [1, 2, 3, 4, 5, 6] [true, false, true, false, true, false] }
 -- output { [1, 3, 3, 7, 5, 11] }
 
+
+-- Benchmarking segmentation scan
+-- ==
+-- entry: segscan_test
+-- compiled input @ segmentation_100.in
+-- compiled input @ segmentation_1000.in
+-- compiled input @ segmentation_10000.in
+-- compiled input @ segmentation_100000.in
+-- compiled input @ segmentation_1000000.in
+
+-- def scan_normal [n] 't (op: t -> t -> t) (ne: t) (arr: [n]t): t =
+--   reduce op ne arr
+
+
+def scan_normal [n] 't (op: t -> t -> t) (ne: t) (arr: [n]t): *[n]t =
+  let combine (x: t) (y: t): t = op x y
+  in scan combine ne arr
+
+entry scan_normal_test [n] (vals: [n]i32): *[n]i32 =
+    scan_normal (+) 0 vals
+
+-- Benchmarking normal reduction function 
+-- ==
+-- entry: scan_normal_test
+-- compiled input @ normal_100.in
+-- compiled input @ normal_1000.in
+-- compiled input @ normal_10000.in
+-- compiled input @ normal_100000.in
+-- compiled input @ normal_1000000.in
