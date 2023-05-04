@@ -78,30 +78,30 @@ def delta_sum [h][w] (spins: [w][h]spin): i32 =
   in i32.i8 delta_sum
 
 
+
+-- def compute_c  (delta_e:i8) (c:spin) (t: f32) (p: f32) ((rng: rng_engine.rng)): spin = 
+def compute_c  (delta_e:i8) (c:i8) (t: f32) (p: f32) ((rng: rng_engine.rng)): spin = 
+    let splitted = rng_engine.split_rng 2 rng
+    let splitValues = map (\x -> rand_f32.rand (0f32, 1f32) x) splitted
+
+    let (_,a) = splitValues[0]
+    let (_,b) = splitValues[1]
+
+    in if a < p && (delta_e < (-delta_e) || b < f32.exp ((f32.i8 (-delta_e))/t)) then (-c)
+    else c
+
 -- Take one step in the Ising 2D simulation.
 def step [h][w] (abs_temp: f32) (samplerate: f32)
                 (rngs: [h][w]rng_engine.rng) (spins: [h][w]spin)
-              : ([h][w]rng_engine.rng, [h][w]spin) =
-    let flatSpin = flatten spins 
-    let zipped = zip3 (flatten rngs) flatSpin (flatten (deltas spins))
-    let splitted = map (\(r,s,d) -> rng_engine.split_rng 2 r) zipped
-    in (rngs,spins)
-
-
-
-
-
-
-def compute_c  (delta_e:i8) (c:i8) (abs_temp: f32) (samplerate: f32) ((rng: rng_engine.rng)): spin = 
-    let splitted = rng_engine.split_rng 2 x
-    let splitValues = map (\x -> rand_i8.i8 (0i8, 1i8) x) splitted
-
-    let a = splitValues[0]
-    let b = splitValues[1]
-
-    in if a < p && (delta_e < (-delta_e) || b < f32.exp (-delta_e/t)) then (-c)
-    else c
-
+              : ([h][w]rng_engine.rng, [h][w]spin) = 
+    let flat_size = h*w
+    let flatR = flatten rngs :> [flat_size]rng_engine.rng
+    let flatS = flatten spins :> [flat_size]spin
+    let flatD = flatten (deltas spins) :> [flat_size]i8
+    let zipped = zip3 flatR flatS flatD 
+    let flatRes = map (\(r,c,d) -> compute_c d c abs_temp samplerate r ) zipped
+    let res = unflatten h w flatRes
+    in (rngs,res)
     
   
 -- | Just for benchmarking.
