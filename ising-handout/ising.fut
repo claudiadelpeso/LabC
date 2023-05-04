@@ -82,30 +82,50 @@ def delta_sum [h][w] (spins: [w][h]spin): i32 =
 def step [h][w] (abs_temp: f32) (samplerate: f32)
                 (rngs: [h][w]rng_engine.rng) (spins: [h][w]spin)
               : ([h][w]rng_engine.rng, [h][w]spin) =
+    let flatSpin = flatten spins 
+    let zipped = zip3 (flatten rngs) flatSpin (flatten (deltas spins))
+    let splitted = map (\(r,s,d) -> rng_engine.split_rng 2 r) zipped
+    in (rngs,spins)
+
+
+
+
+
+
+def compute_c  (delta_e:i8) (c:i8) (abs_temp: f32) (samplerate: f32) ((rng: rng_engine.rng)): spin = 
+    let splitted = rng_engine.split_rng 2 x
+    let splitValues = map (\x -> rand_i8.i8 (0i8, 1i8) x) splitted
+
+    let a = splitValues[0]
+    let b = splitValues[1]
+
+    in if a < p && (delta_e < (-delta_e) || b < f32.exp (-delta_e/t)) then (-c)
+    else c
+
+    
   
+-- | Just for benchmarking.
+def main (abs_temp: f32) (samplerate: f32)
+         (h: i64) (w: i64) (n: i32): [h][w]spin =
+  (loop (rngs, spins) = random_grid 1337 h w for _i < n do
+     step abs_temp samplerate rngs spins).1
 
--- -- | Just for benchmarking.
--- def main (abs_temp: f32) (samplerate: f32)
---          (h: i64) (w: i64) (n: i32): [h][w]spin =
---   (loop (rngs, spins) = random_grid 1337 h w for _i < n do
---      step abs_temp samplerate rngs spins).1
+-- ==
+-- entry: main
+-- input { 0.5f32 0.1f32 10i64 10i64 2 } auto output
 
--- -- ==
--- -- entry: main
--- -- input { 0.5f32 0.1f32 10i64 10i64 2 } auto output
+-- The following definitions are for the visualisation and need not be modified.
 
--- -- The following definitions are for the visualisation and need not be modified.
+type~ state = {cells: [][](rng_engine.rng, spin)}
 
--- type~ state = {cells: [][](rng_engine.rng, spin)}
+entry tui_init seed h w : state =
+  let (rngs, spins) = random_grid seed h w
+  in {cells=map (uncurry zip) (zip rngs spins)}
 
--- entry tui_init seed h w : state =
---   let (rngs, spins) = random_grid seed h w
---   in {cells=map (uncurry zip) (zip rngs spins)}
+entry tui_render (s: state) = map (map (.1)) s.cells
 
--- entry tui_render (s: state) = map (map (.1)) s.cells
-
--- entry tui_step (abs_temp: f32) (samplerate: f32) (s: state) : state =
---   let rngs = (map (map (.0)) s.cells)
---   let spins = map (map (.1)) s.cells
---   let (rngs', spins') = step abs_temp samplerate rngs spins
---   in {cells=map (uncurry zip) (zip rngs' spins')}
+entry tui_step (abs_temp: f32) (samplerate: f32) (s: state) : state =
+  let rngs = (map (map (.0)) s.cells)
+  let spins = map (map (.1)) s.cells
+  let (rngs', spins') = step abs_temp samplerate rngs spins
+  in {cells=map (uncurry zip) (zip rngs' spins')}
