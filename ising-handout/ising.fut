@@ -30,7 +30,13 @@ def rand = rand_f32.rand (0f32, 1f32)
 -- sized array of RNG states.
 def random_grid (seed: i32) (h: i64) (w: i64)
               : ([h][w]rng_engine.rng, [h][w]spin) =
-  ???
+  let flat_size = h*w
+  let new_state = rng_engine.rng_from_seed [seed]
+  let split = rng_engine.split_rng flat_size new_state
+  let rgrid = unflatten h w split
+  let empty = replicate h (replicate w 0i8)
+  in (rgrid,empty)
+
 
 -- Compute $\Delta_e$ for each spin in the grid, using wraparound at
 -- the edges.
