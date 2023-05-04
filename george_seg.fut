@@ -93,6 +93,7 @@ entry histentry [n] (vals: [n]i32) (keys: [n]i64): []i32 =
 -- ==
 -- entry: histentry
 -- compiled input @ hist_1000000.in
+-- compiled input @ hist_5000000.in
 
 -- test hist
 -- ==
@@ -106,4 +107,5 @@ entry reghistentry [n] (vals: [n]i32) (keys: [n]i64): []i32 = hist (+) 0 3 keys 
 -- ==
 -- entry: reghistentry
 -- compiled input @ hist_1000000.in
+-- compiled input @ hist_5000000.in
 
